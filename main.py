@@ -4,6 +4,13 @@ from models.project import Project
 from models.task import Task
 from utils.file_handler import FileHandler
 from utils.helpers import validate_email, format_date, display_table, generate_id
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 class ProjectManagementCLI:
     def __init__(self):
