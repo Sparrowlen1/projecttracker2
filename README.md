@@ -7,15 +7,19 @@
 ## Setup Instructions
 
 1. **Clone the repository**  
-   `git clone <your-repo-url>`
+   `git clone "your repository link`
+2. **instal pipenv**
+   `pip install pipenv`
+3. **install production dependencies
+   `pipenv install python-dateutil prettytable`
 
-2. **Install dependencies with Pipenv**  
-   `pipenv install --dev`
+3. **Install dev dependencies with Pipenv**  
+   `pipenv install --dev pytest`
 
-3. **Activate the virtual environment**  
+4. **Activate the virtual environment**  
    `pipenv shell` (no python -m venv .venv)
 
-4. **Run the CLI tool**  
+5. **Run the CLI tool**  
    `python main.py --help`
 
 
