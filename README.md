@@ -107,26 +107,29 @@ General syntax:
 - **Object‑oriented design** – inheritance (`BaseEntity`), `@property` setters, class‑based ID counters, `__str__` / `__repr__`
 
 ## Project Structure
+
+```text
 project-management-cli/
-├── main.py # CLI entry point (argparse + logging)
+├── main.py                     # CLI entry point (argparse + logging)
 ├── models/
-│ ├── base.py # BaseEntity class (inheritance, str, repr)
-│ ├── user.py # User model (email property, class ID counter)
-│ ├── project.py # Project model (task container, to/from dict)
-│ └── task.py # Task model (status property, mark_complete)
+│   ├── base.py                 # BaseEntity class (inheritance, __str__, __repr__)
+│   ├── user.py                 # User model (email property, class ID counter)
+│   ├── project.py              # Project model (task container, to/from dict)
+│   └── task.py                 # Task model (status property, mark_complete)
 ├── utils/
-│ ├── file_handler.py # JSON persistence (save/load with error handling)
-│ └── helpers.py # validate_email, format_date, display_table, generate_id
+│   ├── file_handler.py         # JSON persistence (save/load with error handling)
+│   └── helpers.py              # validate_email, format_date, display_table, generate_id
 ├── data/
-│ └── storage.json # Auto‑created JSON data file whe n user perform spewcifc actions
+│   └── storage.json            # Auto-created JSON data file when users perform specific actions
 ├── tests/
-│ ├── test_user.py
-│ ├── test_project.py
-│ ├── test_task.py
-│ └── test_file_handler.py
-├── Pipfile # Dependencies (contans production & dev)
+│   ├── test_user.py
+│   ├── test_project.py
+│   ├── test_task.py
+│   └── test_file_handler.py
+├── Pipfile                     # Dependencies (contains production & development packages)
 ├── Pipfile.lock
 └── README.md
+```
 
 ## GIT WORKFLOW
 
