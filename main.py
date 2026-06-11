@@ -182,6 +182,15 @@ class ProjectManagementCLI:
         for task in project.tasks:
             rows.append([task.task_id, task.title, task.status])
         display_table(f"Tasks for {project.title}", headers, rows)
+    def delete_user(self, args):
+        user = self.find_user_by_name(args.name)
+        if not user:
+            print(f"howdy Sparrow! User '{args.name}' not found.")
+            return
+        
+        self.users.remove(user)
+        self.save_data()
+        print(f"howdy Sparrow! User '{args.name}' deleted successfully.")
 def main():
     cli = ProjectManagementCLI()
     
@@ -218,6 +227,9 @@ def main():
     list_tasks_parser = subparsers.add_parser('list-tasks', help='List tasks in a project')
     list_tasks_parser.add_argument('--user', required=True, help='User name')
     list_tasks_parser.add_argument('--project', required=True, help='Project title')
+
+    delete_parser = subparsers.add_parser('delete-user', help='Delete a user')
+    delete_parser.add_argument('--name', required=True, help='User name')
     
     args = parser.parse_args()
     
@@ -237,6 +249,8 @@ def main():
         cli.complete_task(args)
     elif args.command == 'list-tasks':
         cli.list_tasks(args)
+    elif args.command == 'delete-user':
+        cli.delete_user(args) 
     else:
         parser.print_help()
 if __name__ == '__main__':
