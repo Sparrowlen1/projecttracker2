@@ -125,6 +125,63 @@ class ProjectManagementCLI:
         for project in matching_projects:
             rows.append([project.project_id, project.title, project.description[:30], project.due_date])
         display_table(f"Search Results for '{args.term}'", headers, rows)
+
+    def add_task(self, args):
+        task_assigned_to = None
+        user = None
+        
+        for u in self.users:
+            project = self.find_project_by_title(u, args.project)
+            if project:
+                user = u
+                break
+        
+        if not user:
+            print(f"howdy Sparrow! Project '{args.project}' not found.")
+            return
+        
+        project = self.find_project_by_title(user, args.project)
+        
+        existing_ids = [t.task_id for t in project.tasks if t.task_id]
+        task_id = generate_id('Task', existing_ids)
+        
+        task = Task(args.title, task_assigned_to, 'pending', task_id)
+        project.add_task(task)
+        self.save_data()
+        print(f"howdy Sparrow! Task '{args.title}' added to project '{project.title}' with ID: {task_id}")
+    
+    def complete_task(self, args):
+        for user in self.users:
+            for project in user.projects:
+                for task in project.tasks:
+                    if task.title.strip().lower() == args.title.strip().lower():
+                        task.mark_complete()
+                        self.save_data()
+                        print(f"howdy Sparrow! Task '{args.title}' Hereby marked as completed.")
+                        return
+        
+        print(f"howdy Sparrow! Task '{args.title}' not found.")
+    
+    def list_tasks(self, args):
+        user = self.find_user_by_name(args.user)
+        if not user:
+            print(f"howdy Sparrow! User '{args.user}' not found.")
+            return
+        
+        project = self.find_project_by_title(user, args.project)
+        if not project:
+            print(f"howdy Sparrow! Project '{args.project}' not found for user '{user.name}'.")
+            return
+        
+        if not project.tasks:
+            print(f"howdy Sparrow! Project '{project.title}' has no tasks assigned to him yet.")
+            return
+        
+        headers = ['Task ID', 'Title', 'Status Project']
+        rows = []
+        for task in project.tasks:
+            rows.append([task.task_id, task.title, task.status])
+        display_table(f"Tasks for {project.title}", headers, rows)
 def main():
     cli = ProjectManagementCLI()
     
@@ -150,6 +207,17 @@ def main():
     search_parser = subparsers.add_parser('search-projects', help='Search projects for a user')
     search_parser.add_argument('--user', required=True, help='User name')
     search_parser.add_argument('--term', required=True, help='Search term')
+
+    task_parser = subparsers.add_parser('add-task', help='Add a task to a project')
+    task_parser.add_argument('--project', required=True, help='Project title')
+    task_parser.add_argument('--title', required=True, help='Task title')
+    
+    complete_parser = subparsers.add_parser('complete-task', help='Mark a task as complete')
+    complete_parser.add_argument('--title', required=True, help='Task title')
+    
+    list_tasks_parser = subparsers.add_parser('list-tasks', help='List tasks in a project')
+    list_tasks_parser.add_argument('--user', required=True, help='User name')
+    list_tasks_parser.add_argument('--project', required=True, help='Project title')
     
     args = parser.parse_args()
     
@@ -163,6 +231,12 @@ def main():
         cli.list_projects(args)
     elif args.command == 'search-projects':
         cli.search_projects(args)
+    elif args.command == 'add-task':
+        cli.add_task(args)
+    elif args.command == 'complete-task':
+        cli.complete_task(args)
+    elif args.command == 'list-tasks':
+        cli.list_tasks(args)
     else:
         parser.print_help()
 if __name__ == '__main__':
