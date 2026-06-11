@@ -1,1 +1,63 @@
-[]
+[
+    {
+        "name": "Sparrowlen",
+        "email": "sparrowlen@gmail.com",
+        "user_id": "USR1",
+        "projects": [
+            {
+                "title": "game dev",
+                "description": "call of duty mobile",
+                "due_date": "2026-06-18",
+                "project_id": "PRJ1",
+                "tasks": []
+            },
+            {
+                "title": "UI/UX design",
+                "description": "call of duty mobile homepage",
+                "due_date": "2026-06-18",
+                "project_id": "PRJ2",
+                "tasks": [
+                    {
+                        "title": "add navbar",
+                        "assigned_to": null,
+                        "status": "completed",
+                        "task_id": "Task1"
+                    },
+                    {
+                        "title": "add navbar hover",
+                        "assigned_to": null,
+                        "status": "pending",
+                        "task_id": "Task2"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "levi",
+        "email": "levi@gmail.com",
+        "user_id": "USR2",
+        "projects": [
+            {
+                "title": "UI/UX design",
+                "description": "movie homepage",
+                "due_date": "2026-06-18",
+                "project_id": "PRJ1",
+                "tasks": []
+            },
+            {
+                "title": "UI/UX design",
+                "description": "banking homepage",
+                "due_date": "2026-06-18",
+                "project_id": "PRJ2",
+                "tasks": []
+            }
+        ]
+    },
+    {
+        "name": "grace",
+        "email": "grace@gmail.com",
+        "user_id": "USR3",
+        "projects": []
+    }
+]
