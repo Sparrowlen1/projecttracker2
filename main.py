@@ -14,46 +14,71 @@ logging.basicConfig(
 
 class ProjectManagementCLI:
     def __init__(self):
+        logging.debug("Howdy Sparrow we are initalizing the project management CLI...")
         self.file_handler = FileHandler()
         self.users = []
         self.load_data()
     
     def load_data(self):
+        logging.debug("waking up the storage....")
         self.users = self.file_handler.load_data(User, Project, Task)
         if not self.users:
+            logging.debug('well ill be damned no users found, initializing empty list')
             self.users = []
+        logging.debug(f"loaded{len(self.users)} users")   
     
     def save_data(self):
+        logging.debug("Saving data to storage")
         self.file_handler.save_data(self.users)
+        logging.debug("my sparrow your data has bee saved")
     
     def find_user_by_name(self, name):
+        logging.debug(f"Searching for user by name: '{name}'")
         for user in self.users:
             if user.name.lower() == name.lower():
+                logging.debug(f"User found: {user.name} (ID: {user.user_id})")
                 return user
+        logging.debug(f"User '{name}' not found")
         return None
     
     def find_user_by_id(self, user_id):
+        logging.debug(f"Searching for user by ID: '{user_id}'")
         for user in self.users:
             if user.user_id == user_id:
+                logging.debug(f"User found: {user.name}")
                 return user
+        logging.debug(f"User ID '{user_id}' not found")
         return None
-    
+    def find_project_by_title(self, user, title):
+        logging.debug(f"Searching project '{title}' for user '{user.name}'")
+        for project in user.projects:
+            if project.title.lower() == title.lower():
+                logging.debug(f"Project found: {project.title} (ID: {project.project_id})")
+                return project
+        logging.debug(f"Project '{title}' not found for user '{user.name}'")
+        return None
     def add_user(self, args):
+        logging.debug(f"add_user called with name='{args.name}', email='{args.email}'")
         if not validate_email(args.email):
             print("howdy Sparrow! Invalid email format. Email must contain @ and .")
+            logging.warning(f"Invalid email format: {args.email}")
             return
         
         existing_ids = [u.user_id for u in self.users if u.user_id]
         user_id = generate_id('USR', existing_ids)
+        logging.debug(f"Generated user_id: {user_id}")
         
         user = User(args.name, args.email, user_id)
         self.users.append(user)
         self.save_data()
         print(f"howdy Sparrow! User '{args.name}' added successfully with id: {user_id}")
+        logging.info(f"User added: {user.name} ({user.email}) ID: {user_id}")
     
     def list_users(self, args):
+        logging.debug("list_users called")
         if not self.users:
             print("howdy Sparrow! No users found.")
+            logging.debug("No users to list")
             return
         
         headers = ['ID', 'Name', 'Email', 'Projects Count']
@@ -61,26 +86,29 @@ class ProjectManagementCLI:
         for user in self.users:
             rows.append([user.user_id, user.name, user.email, len(user.projects)])
         display_table('Users List', headers, rows)
-    def find_project_by_title(self, user, title):
-        for project in user.projects:
-            if project.title.lower() == title.lower():
-                return project
-        return None
+        logging.debug(f"Listed {len(self.users)} users")
+
     def add_project(self, args):
+        logging.debug(f"add_project called: user='{args.user}', title='{args.title}'")
         user = self.find_user_by_name(args.user)
         if not user:
             print(f"howdy Sparrow! User '{args.user}' not found my brother.")
+            logging.warning(f"User '{args.user}' not found")
             return
         
         existing_ids = [p.project_id for p in user.projects if p.project_id]
         project_id = generate_id('PRJ', existing_ids)
+        logging.debug(f"Generated project_id: {project_id}")
         
         due_date = format_date(args.due_date)
         project = Project(args.title, args.description, due_date, project_id)
         user.add_project(project)
         self.save_data()
         print(f"howdy Sparrow! Project '{args.title}' added to username: '{user.name}' with ID: {project_id}")
+        logging.info(f"Project added: {project.title} for user {user.name}")
+
     def list_projects(self, args):
+        logging.debug(f"list_projects called with user filter: {args.user}")
         if args.user:
             user = self.find_user_by_name(args.user)
             if not user:
@@ -89,6 +117,7 @@ class ProjectManagementCLI:
             
             if not user.projects:
                 print(f"howdy Sparrow! User '{user.name}' has no projects.")
+                logging.debug(f"No projects for user {user.name}")
                 return
             
             headers = ['Project ID', 'Title', 'Description', 'Due Date', 'Tasks']
@@ -97,6 +126,7 @@ class ProjectManagementCLI:
                 rows.append([project.project_id, project.title, project.description[:30], 
                            project.due_date, len(project.tasks)])
             display_table(f"Projects for {user.name}", headers, rows)
+            logging.debug(f"Listed {len(user.projects)} projects for {user.name}")
         else:
             all_projects = []
             for user in self.users:
@@ -106,11 +136,15 @@ class ProjectManagementCLI:
             
             if not all_projects:
                 print("howdy Sparrow! No projects found.")
+                logging.debug("No projects exist in the sparow system for project management")
                 return
             
             headers = ['User', 'Project ID', 'Title', 'Due Date', 'Tasks']
-            display_table('All Projects', headers, all_projects)    
+            display_table('All Projects', headers, all_projects)
+            logging.debug(f"Listed {len(all_projects)} projects across all users")
+
     def search_projects(self, args):
+        logging.debug(f"search_projects called: user='{args.user}', term='{args.term}'")
         user = self.find_user_by_name(args.user)
         if not user:
             print(f"howdy Sparrow! User '{args.user}' not found.")
@@ -122,9 +156,11 @@ class ProjectManagementCLI:
         for project in user.projects:
             if search_term in project.title.lower() or search_term in project.description.lower():
                 matching_projects.append(project)
+                logging.debug(f"Project matches: '{project.title}'")
         
         if not matching_projects:
             print(f"howdy Sparrow! No projects found matching '{args.term}' for user '{user.name}'.")
+            logging.debug(f"No matching projects for term '{args.term}'")
             return
         
         headers = ['Project ID', 'Title', 'Description', 'Due Date']
@@ -132,8 +168,10 @@ class ProjectManagementCLI:
         for project in matching_projects:
             rows.append([project.project_id, project.title, project.description[:30], project.due_date])
         display_table(f"Search Results for '{args.term}'", headers, rows)
+        logging.debug(f"Found {len(matching_projects)} matching projects")
 
     def add_task(self, args):
+        logging.debug(f"add_task called: project='{args.project}', title='{args.title}'")
         task_assigned_to = None
         user = None
         
@@ -145,31 +183,38 @@ class ProjectManagementCLI:
         
         if not user:
             print(f"howdy Sparrow! Project '{args.project}' not found.")
+            logging.warning(f"Project '{args.project}' not found in any user")
             return
         
         project = self.find_project_by_title(user, args.project)
         
         existing_ids = [t.task_id for t in project.tasks if t.task_id]
         task_id = generate_id('Task', existing_ids)
+        logging.debug(f"Generated task_id: {task_id}")
         
         task = Task(args.title, task_assigned_to, 'pending', task_id)
         project.add_task(task)
         self.save_data()
         print(f"howdy Sparrow! Task '{args.title}' added to project '{project.title}' with ID: {task_id}")
+        logging.info(f"Task added: {task.title} to project {project.title}")
     
     def complete_task(self, args):
+        logging.debug(f"complete_task called with title='{args.title}'")
         for user in self.users:
             for project in user.projects:
                 for task in project.tasks:
                     if task.title.strip().lower() == args.title.strip().lower():
+                        logging.debug(f"Found task '{task.title}' in project '{project.title}' for user '{user.name}'")
                         task.mark_complete()
                         self.save_data()
                         print(f"howdy Sparrow! Task '{args.title}' Hereby marked as completed.")
+                        logging.info(f"Task completed: {task.title}")
                         return
-        
+        logging.warning(f"Task '{args.title}' not found in any project")
         print(f"howdy Sparrow! Task '{args.title}' not found.")
     
     def list_tasks(self, args):
+        logging.debug(f"list_tasks called: user='{args.user}', project='{args.project}'")
         user = self.find_user_by_name(args.user)
         if not user:
             print(f"howdy Sparrow! User '{args.user}' not found.")
@@ -182,6 +227,7 @@ class ProjectManagementCLI:
         
         if not project.tasks:
             print(f"howdy Sparrow! Project '{project.title}' has no tasks assigned to him yet.")
+            logging.debug(f"No tasks in project {project.title}")
             return
         
         headers = ['Task ID', 'Title', 'Status Project']
@@ -189,7 +235,10 @@ class ProjectManagementCLI:
         for task in project.tasks:
             rows.append([task.task_id, task.title, task.status])
         display_table(f"Tasks for {project.title}", headers, rows)
+        logging.debug(f"Listed {len(project.tasks)} tasks for project {project.title}")
+        
     def delete_user(self, args):
+        logging.debug(f"delete_user called: name='{args.name}'")
         user = self.find_user_by_name(args.name)
         if not user:
             print(f"howdy Sparrow! User '{args.name}' not found.")
@@ -198,7 +247,10 @@ class ProjectManagementCLI:
         self.users.remove(user)
         self.save_data()
         print(f"howdy Sparrow! User '{args.name}' deleted successfully.")
+        logging.info(f"User deleted: {user.name} (ID: {user.user_id})")
+
 def main():
+    logging.debug("howdy we starting CLI application")
     cli = ProjectManagementCLI()
     
     parser = argparse.ArgumentParser(description='howdy Sparrow! Project Management CLI Tool')
@@ -239,6 +291,7 @@ def main():
     delete_parser.add_argument('--name', required=True, help='User name')
     
     args = parser.parse_args()
+    logging.debug(f"Command received: {args.command if args.command else 'None'}")
     
     if args.command == 'add-user':
         cli.add_user(args)
@@ -260,5 +313,7 @@ def main():
         cli.delete_user(args) 
     else:
         parser.print_help()
+        logging.warning("No valid command provided")
+        
 if __name__ == '__main__':
     main()
