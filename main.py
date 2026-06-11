@@ -54,7 +54,77 @@ class ProjectManagementCLI:
         for user in self.users:
             rows.append([user.user_id, user.name, user.email, len(user.projects)])
         display_table('Users List', headers, rows)
-
+    def find_project_by_title(self, user, title):
+        for project in user.projects:
+            if project.title.lower() == title.lower():
+                return project
+        return None
+    def add_project(self, args):
+        user = self.find_user_by_name(args.user)
+        if not user:
+            print(f"howdy Sparrow! User '{args.user}' not found my brother.")
+            return
+        
+        existing_ids = [p.project_id for p in user.projects if p.project_id]
+        project_id = generate_id('PRJ', existing_ids)
+        
+        due_date = format_date(args.due_date)
+        project = Project(args.title, args.description, due_date, project_id)
+        user.add_project(project)
+        self.save_data()
+        print(f"howdy Sparrow! Project '{args.title}' added to username: '{user.name}' with ID: {project_id}")
+    def list_projects(self, args):
+        if args.user:
+            user = self.find_user_by_name(args.user)
+            if not user:
+                print(f"howdy Sparrow! User '{args.user}' not found.")
+                return
+            
+            if not user.projects:
+                print(f"howdy Sparrow! User '{user.name}' has no projects.")
+                return
+            
+            headers = ['Project ID', 'Title', 'Description', 'Due Date', 'Tasks']
+            rows = []
+            for project in user.projects:
+                rows.append([project.project_id, project.title, project.description[:30], 
+                           project.due_date, len(project.tasks)])
+            display_table(f"Projects for {user.name}", headers, rows)
+        else:
+            all_projects = []
+            for user in self.users:
+                for project in user.projects:
+                    all_projects.append([user.name, project.project_id, project.title, 
+                                       project.due_date, len(project.tasks)])
+            
+            if not all_projects:
+                print("howdy Sparrow! No projects found.")
+                return
+            
+            headers = ['User', 'Project ID', 'Title', 'Due Date', 'Tasks']
+            display_table('All Projects', headers, all_projects)    
+    def search_projects(self, args):
+        user = self.find_user_by_name(args.user)
+        if not user:
+            print(f"howdy Sparrow! User '{args.user}' not found.")
+            return
+        
+        search_term = args.term.lower()
+        matching_projects = []
+        
+        for project in user.projects:
+            if search_term in project.title.lower() or search_term in project.description.lower():
+                matching_projects.append(project)
+        
+        if not matching_projects:
+            print(f"howdy Sparrow! No projects found matching '{args.term}' for user '{user.name}'.")
+            return
+        
+        headers = ['Project ID', 'Title', 'Description', 'Due Date']
+        rows = []
+        for project in matching_projects:
+            rows.append([project.project_id, project.title, project.description[:30], project.due_date])
+        display_table(f"Search Results for '{args.term}'", headers, rows)
 def main():
     cli = ProjectManagementCLI()
     
@@ -66,6 +136,20 @@ def main():
     user_parser.add_argument('--email', required=True, help='User email')
     
     list_users_parser = subparsers.add_parser('list-users', help='List all users')
+
+    # subparser
+    project_parser = subparsers.add_parser('add-project', help='Add a project to a user')
+    project_parser.add_argument('--user', required=True, help='User name')
+    project_parser.add_argument('--title', required=True, help='Project title')
+    project_parser.add_argument('--description', required=True, help='Project description')
+    project_parser.add_argument('--due-date', required=True, help='Project due date')
+    
+    list_projects_parser = subparsers.add_parser('list-projects', help='List projects')
+    list_projects_parser.add_argument('--user', help='Filter by user name')
+    
+    search_parser = subparsers.add_parser('search-projects', help='Search projects for a user')
+    search_parser.add_argument('--user', required=True, help='User name')
+    search_parser.add_argument('--term', required=True, help='Search term')
     
     args = parser.parse_args()
     
@@ -73,8 +157,13 @@ def main():
         cli.add_user(args)
     elif args.command == 'list-users':
         cli.list_users(args)
+    elif args.command == 'add-project':
+        cli.add_project(args)
+    elif args.command == 'list-projects':
+        cli.list_projects(args)
+    elif args.command == 'search-projects':
+        cli.search_projects(args)
     else:
         parser.print_help()
-
 if __name__ == '__main__':
     main()
