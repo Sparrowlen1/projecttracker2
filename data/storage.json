@@ -1,1 +1,8 @@
-[]
+[
+    {
+        "name": "John",
+        "email": "john@example.com",
+        "user_id": "USR1",
+        "projects": []
+    }
+]
