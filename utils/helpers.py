@@ -1,4 +1,3 @@
-from datetime import datetime
 from prettytable import PrettyTable
 from dateutil import parser
 
@@ -9,7 +8,7 @@ def format_date(date_string):
     try:
         parsed_date = parser.parse(date_string)
         return parsed_date.strftime('%Y-%m-%d')
-    except:
+    except (ValueError, OverflowError, TypeError):
         return date_string
 
 def display_table(title, headers, rows):
@@ -17,7 +16,7 @@ def display_table(title, headers, rows):
     table.field_names = headers
     for row in rows:
         table.add_row(row)
-    print(f"\nhowdyt! {title}")
+    print(f"\nhowdy Sparrow! {title}")
     print(table)
 
 def generate_id(prefix, existing_ids):
