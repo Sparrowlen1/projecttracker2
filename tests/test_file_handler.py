@@ -43,7 +43,6 @@ class TestFileHandler(unittest.TestCase):
         self.assertEqual(loaded[1].name, "Bob")
 
     def test_save_and_load_with_projects_and_tasks(self):
-        """Test saving and loading nested data"""
         project = Project("Test Project", "Description", "2026-12-31", "PRJ777")
         task = Task("Test Task", status="pending", task_id="TSK555")
         project.add_task(task)
@@ -69,21 +68,18 @@ class TestFileHandler(unittest.TestCase):
         self.assertEqual(loaded_task.task_id, "TSK555")
 
     def test_load_missing_file(self):
-        """Test loading when file does not exist"""
         if os.path.exists(self.test_file):
             os.remove(self.test_file)
         loaded = self.file_handler.load_data(User, Project, Task)
         self.assertEqual(loaded, []) 
 
     def test_load_corrupted_json(self):
-        """Test loading a malformed JSON file"""
         with open(self.test_file, 'w') as f:
             f.write("This is not valid JSON")
         loaded = self.file_handler.load_data(User, Project, Task)
         self.assertEqual(loaded, []) 
 
     def test_ensure_data_directory(self):
-        """Test that directory is created automatically"""
         deep_path = os.path.join(self.temp_dir.name, "subdir", "nested", "storage.json")
         handler = FileHandler(deep_path)
         self.assertTrue(os.path.exists(os.path.dirname(deep_path)))

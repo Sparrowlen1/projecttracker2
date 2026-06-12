@@ -259,7 +259,7 @@ def main():
     user_parser = subparsers.add_parser('add-user', help='Add a new user')
     user_parser.add_argument('--name', required=True, help='User name')
     user_parser.add_argument('--email', required=True, help='User email')
-    
+     
     list_users_parser = subparsers.add_parser('list-users', help='List all users')
 
     # subparser
