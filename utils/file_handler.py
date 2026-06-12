@@ -18,7 +18,7 @@ class FileHandler:
                 json.dump(data, f, indent=4)
             return True
         except Exception as e:
-            print(f"howdyt! Error saving data: {e}")
+            print(f"howdy! Error saving data: {e}")
             return False
     
     def load_data(self, user_class, project_class, task_class):

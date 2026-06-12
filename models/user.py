@@ -21,7 +21,7 @@ class User(BaseEntity):
     @email.setter
     def email(self, value):
         if '@' not in value or '.' not in value:
-            raise ValueError("howdyt! Invalid email format")
+            raise ValueError("howdy! Invalid email format")
         self._email = value
 
     def to_dict(self):
